@@ -13,7 +13,9 @@ import Prelude hiding (Left, Right, reverse)
 {- 1. Write a function: -}
 
 isHorizontal :: Direction -> Bool
-isHorizontal = undefined
+isHorizontal Left = True 
+isHorizontal Right = True
+isHorizontal _ = False
 
 {- that returns 'True' if the direction is 'Left' or 'Right', and
    'False' otherwise. -}
@@ -22,7 +24,9 @@ isHorizontal = undefined
 {- 2. Write a function: -}
 
 flipHorizontally :: Direction -> Direction
-flipHorizontally = undefined
+flipHorizontally Left = Right 
+flipHorizontally Right = Left 
+flipHorizontally d = d
 
 {- that flips horizontally (Left <-> Right, Up and Down stay the same). -}
 
@@ -31,7 +35,11 @@ flipHorizontally = undefined
       input: -}
 
 pairOfEqualDirections :: Pair Direction Direction -> Bool
-pairOfEqualDirections = undefined
+pairOfEqualDirections (MkPair Left Left) = True 
+pairOfEqualDirections (MkPair Right Right) = True
+pairOfEqualDirections (MkPair Up Up) = True 
+pairOfEqualDirections (MkPair Down Down) = True
+pairOfEqualDirections (MkPair _ _) = False
 
 
 {- 4. Define a datatype 'Triple a b c' for values that have three
@@ -39,6 +47,19 @@ pairOfEqualDirections = undefined
       'get2of3' and 'get3of3' that return the first, second and third
       components. You will have to come up with the type signatures
       for the second and third one. -}
+
+data Triple a b c = MkTriple a b c
+      deriving Show
+
+get1of3 :: Triple a b c -> a
+get1of3 (MkTriple a b c) = a
+
+get2of3 :: Triple a b c -> b
+get2of3 (MkTriple a b c) = b
+
+get3of3 :: Triple a b c -> c
+get3of3 (MkTriple a b c ) = c
+
 
 
 {- 5. Pattern matching on specific characters is done by writing the
@@ -58,7 +79,9 @@ isA _   = False
       (Strings in Haskell are really lists of 'Char's) -}
 
 dropSpaces :: [Char] -> [Char]
-dropSpaces = undefined
+dropSpaces [] = [] 
+dropSpaces (' ':xs) = dropSpaces xs
+dropSpaces (x:xs) = x:xs
 
 {- 6. Using 'reverse' and 'dropSpaces', write a function that removes
       spaces at the *end* of a list of characters. For example:
@@ -68,4 +91,4 @@ dropSpaces = undefined
 -}
 
 dropTrailingSpaces :: [Char] -> [Char]
-dropTrailingSpaces = undefined
+dropTrailingSpaces string = reverse (dropSpaces (reverse string))

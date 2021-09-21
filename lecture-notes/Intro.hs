@@ -1,4 +1,5 @@
 module Intro where
+import GHC.Generics (SourceUnpackedness)
 
 {-    WELCOME TO
 
@@ -126,3 +127,59 @@ module Intro where
 
    - One large coursework
 -}
+
+data Suit 
+   = Heart
+   | Club
+   | Spade
+   | Diamond
+   deriving Show
+
+data Colour
+   = Red | Black
+   deriving Show
+
+data Value
+   = Ace | N2 | N3 | N4 | N5 | N6 | N7 | N8 | N9 | N10 | Jack | Queen | King
+   deriving Show 
+
+colourOfSuit :: Suit -> Colour
+colourOfSuit Heart   = Red 
+colourOfSuit Diamond = Red
+colourOfSuit _       = Black
+
+numericValue :: Value -> Integer
+numericValue Ace   = 1
+numericValue N2    = 2 
+numericValue N3    = 3
+numericValue N4    = 4
+numericValue N5    = 5 
+numericValue N6    = 6 
+numericValue N7    = 7
+numericValue N8    = 8 
+numericValue N9    = 9 
+numericValue N10   = 10
+numericValue Jack  = 11
+numericValue Queen = 12 
+numericValue King  = 13 
+
+greaterValue :: Value -> Value -> Bool
+greaterValue a b = valA > valB
+   where valA = numericValue a
+         valB = numericValue b 
+
+data Card 
+   = Card Suit Value
+   deriving Show
+
+getSuit :: Card -> Suit
+getSuit (Card suit value) = suit
+
+getColour :: Card -> Colour
+getColour (Card suit value) = colourOfSuit suit
+
+getValue :: Card -> Value
+getValue (Card suit value) = value
+
+getNumericValue :: Card -> Integer
+getNumericValue (Card suit value) = numericValue value 
