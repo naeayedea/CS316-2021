@@ -214,14 +214,14 @@ data Card
    = Card Suit Value
    deriving Show
 
-getSuit :: Card -> Suit
-getSuit (Card suit value) = suit
+getCardSuit :: Card -> Suit
+getCardSuit (Card suit value) = suit
 
-getColour :: Card -> Colour
-getColour (Card suit value) = colourOfSuit suit
+getCardColour :: Card -> Colour
+getCardColour (Card suit value) = colourOfSuit suit
 
-getValue :: Card -> Value
-getValue (Card suit value) = value
+getCardValue :: Card -> Value
+getCardValue (Card suit value) = value
 
-getNumericValue :: Card -> Integer
-getNumericValue (Card suit value) = numericValue value 
+getCardNumericValue :: Card -> Integer
+getCardNumericValue (Card suit value) = numericValue value 
