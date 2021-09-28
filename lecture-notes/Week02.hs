@@ -225,7 +225,14 @@ remove y (x:xs)
    spelling out by hand the steps involved in removing '2' from the
    list '[1,2,2,3]'. -}
 
+--The above function only removes the first occurance
+--this one does all of them - personal edit
 
+removeAll :: Ord a => a -> [a] -> [a]
+removeAll y [] = []
+removeAll y (x:xs)
+  | x == y = removeAll y xs
+  | otherwise = x : removeAll y xs
 
 {-    Part 2.3 : INSERTION SORT AND QUICKSORT
 
@@ -753,10 +760,28 @@ makeChange :: [Coin] -> [Coin] -> Int -> Maybe [Coin]
 makeChange coins        used 0 = Just used
 makeChange []           used _ = Nothing
 makeChange (coin:coins) used amount
+
+  {-If the current amount, is >= the current coin then 
+    add the coins to coins used and subtract the amount
+    and then repeat the function with rest of coins, this
+    part is how  makeChange0 works-}
   | amount >= coin =
     case makeChange coins (coin:used) (amount - coin) of
+
+      {-this inner part is the result from the case
+        if nothing is returned, then we attempt to backtrack
+        and retry the whole thing again without using the first
+        coin as this results in no result (remember backtracking
+        from N-Queens problem)
+
+        In short, if result is gained, return it, else ignore the
+        first coin and try again until all coins have been ignored
+        or a result has been achieved
+        -}
       Just coins -> Just coins
       Nothing    -> makeChange coins used amount
+
+      {-This part looks for coins until one is smaller than the amount-}
   | otherwise =
     makeChange coins used amount
 
