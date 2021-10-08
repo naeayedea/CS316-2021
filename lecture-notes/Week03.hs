@@ -303,10 +303,10 @@ withLengths = map (\s -> (s, length s))
    we give the function 'filter' directly: -}
 
 filter :: (a -> Bool) -> [a] -> [a]
-filter p [] = []
-filter p (x:xs)
-  | p x       = x : filter p xs
-  | otherwise = filter p xs
+filter f [] = []
+filter f (x:xs)
+  | f x       = x : filter f xs
+  | otherwise = filter f xs
 
 {- Now we can use 'filter' to quickly write a function that only keeps
    the even numbers in a list. -}
@@ -423,6 +423,11 @@ pipeline = map fst . filter (\(s,i) -> s == "CS316")
 
 pipeline2 :: [(String,Int)] -> Int
 pipeline2 = length . filter (\(s,i) -> s == "CS316")
+
+
+pipeline3:: [(String,Int)] -> [Int]
+pipeline3 = map snd . filter (\(s,i) -> s == "CS316")
+
 
 
 {- Function composition is a form of 'multiplication' for functions: we

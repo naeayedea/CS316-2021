@@ -15,13 +15,23 @@ import Data.Char
 mulBy2 :: Int -> Int
 mulBy2 x = 2*x
 
+mulBy2' :: Int -> Int 
+mulBy2' = \x -> x * 2
+
 mul :: Int -> Int -> Int
 mul x y = x * y
+
+mul' :: Int -> Int -> Int
+mul' = \x y -> x * y
 
 invert :: Bool -> Bool
 invert True  = False
 invert False = True
   {- HINT: use a 'case', or an 'if'. -}
+
+invert' :: Bool -> Bool 
+invert' = \b -> not b 
+-- or invert' = \b -> if b then False else True 
 
 
 {- 2. Partial Application
@@ -31,8 +41,13 @@ invert False = True
 
        mul 10
 
-   (b) what is 'mul 10'? How can you use it to multiply a number? -}
+   A: mul 10 has type Int -> Int 
 
+   (b) what is 'mul 10'? How can you use it to multiply a number? 
+   
+   A: mul 10 is a function with type (Int -> Int), applying it to a 
+   number evaluates to mul 10 num e.g. Int -> Int -> Int
+   -}
 
 {- 3. Partial Application
 
@@ -40,7 +55,7 @@ invert False = True
    function as short as possible? -}
 
 double_v2 :: Int -> Int
-double_v2 = undefined -- fill this in
+double_v2 = mul 2
 
 {- 4. Using 'map'.
 
@@ -63,8 +78,7 @@ double_v2 = undefined -- fill this in
 -}
 
 shout :: String -> String    -- remember that String = [Char]
-shout = undefined
-
+shout = map toUpper 
 
 {- 5. Using 'map' with another function.
 
@@ -87,7 +101,10 @@ shout = undefined
    into two element lists. -}
 
 dupAll :: [a] -> [a]
-dupAll = undefined
+dupAll = concat . map (\value -> valToList value) 
+
+valToList :: a -> [a]
+valToList v = [v, v]
 
 
 {- 6. Using 'filter'
@@ -101,13 +118,13 @@ dupAll = undefined
        's' and counts the number of 'c's in 's'. -}
 
 onlyEs :: String -> String
-onlyEs = undefined
+onlyEs = filter (\char -> char == 'E')
 
 numberOfEs :: String -> Int
-numberOfEs = undefined
+numberOfEs = length . onlyEs
 
 numberOf :: Char -> String -> Int
-numberOf = undefined
+numberOf = \c -> length . (filter (\char -> char == c))
 
 
 {- 7. Rewriting 'filter'
@@ -120,10 +137,12 @@ numberOf = undefined
 -}
 
 filter_v2 :: (a -> Bool) -> [a] -> [a]
-filter_v2 = undefined
+filter_v2 = \f -> concat . (map (\x -> if f x then [x] else [])) 
 
 filterMap :: (a -> Maybe b) -> [a] -> [b]
-filterMap = undefined
+filterMap = \f -> concat . map (\x ->  case f x of 
+                                       Nothing -> []
+                                       Just y  -> [y])
 
 
 {- 8. Evaluating Formulas
@@ -149,17 +168,26 @@ data Formula
 -}
 
 eval_v1 :: Formula -> Bool
-eval_v1 = undefined
+eval_v1 (Atom  s) = True
+eval_v1 (And f g) = eval_v1 f && eval_v1 g
+eval_v1 (Or  f g) = eval_v1 f || eval_v1 g
+eval_v1 (Not f)   = not (eval_v1 f)
 
 
-
+add :: Int -> Int -> Int
+add = \x y -> x + y
 
 {- (b) Now write a new version of 'eval_v1' that, instead of evaluating
        every 'Atom a' to 'True', takes a function that gives a 'Bool'
        for each atomic proposition: -}
 
 eval :: (String -> Bool) -> Formula -> Bool
-eval = undefined
+eval = \function formula -> case formula of
+               (Atom  s) -> function s
+               (And f g) -> (eval function f) && (eval function g)
+               (Or  f g) -> (eval function f) || (eval function g)
+               (Not f)   -> not (eval function f)
+
 
 {- For example:
 
@@ -175,7 +203,11 @@ eval = undefined
    formulas in a Formula with whatever 'f' tells it to: -}
 
 subst :: (String -> Formula) -> Formula -> Formula
-subst = undefined
+subst = \function formula -> case formula of
+               (Atom  s) -> function s
+               (And f g) -> subst function f `And` subst function g
+               (Or  f g) -> subst function f `Or`  subst function g
+               (Not f)   -> Not (subst function f)
 
 {- For example:
 
@@ -191,9 +223,11 @@ subst = undefined
    HINT: this is similar to the function 'compose' above. -}
 
 (>>>) :: (a -> b) -> (b -> c) -> a -> c
-(>>>) = undefined
+(>>>) = \f g a -> g (f a)
 
 {- Try rewriting the 'numberOfEs' function from above using this one. -}
+
+
 
 {- 11. Backwards application
 
@@ -202,7 +236,7 @@ subst = undefined
    its arguments in reverse order to normal function application! -}
 
 (|>) :: a -> (a -> b) -> b
-(|>) x f = undefined
+(|>) x f = f x 
 
 
 {- This function can be used between its arguments like so:
@@ -222,4 +256,4 @@ subst = undefined
    arguments in reverse order: -}
 
 flip :: (a -> b -> c) -> b -> a -> c
-flip  = undefined
+flip  = \f a b -> f b a 
