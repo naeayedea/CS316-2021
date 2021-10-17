@@ -35,7 +35,7 @@ import Prelude hiding (foldr, foldl)
 
 {- foldr -}
 
-len :: [a] -> Int 
+len :: [a] -> Int
 len []     = 0
 len (x:xs) = 1 + len xs
 
@@ -52,12 +52,12 @@ allTrue (x:xs) = x && allTrue xs
 -- = True && True         -- if allTrue [] = False, then this case is True && False = False
 -- = True
 
-anyTrue :: [Bool] -> Bool 
+anyTrue :: [Bool] -> Bool
 anyTrue []     = False
 anyTrue (x:xs) = x || anyTrue xs
 
 -- "population count"
-popCount :: Eq a => a -> [a] -> Int 
+popCount :: Eq a => a -> [a] -> Int
 popCount x []     = 0
 popCount x (y:ys) = (if x == y then 1 else 0) + popCount x ys
 --   case y of
@@ -75,7 +75,7 @@ popCount x (y:ys) = (if x == y then 1 else 0) + popCount x ys
 -- Why this split of cases? Come back to this later.
 
 foldr :: (a -> b -> b) -> b -> [a] -> b
-foldr f b []     = b 
+foldr f b []     = b
 foldr f b (x:xs) = f x (foldr f b xs)
 
 -- we want  ??? :: b
@@ -98,14 +98,44 @@ len_v2 = foldr (\a l -> 1+l) 0
 -- = 1 + (1 + (1 + (1 + (1 + 0))))
 -- = 5
 
-total_v2 :: [Int] -> Int 
+total_v2 :: [Int] -> Int
 total_v2 = foldr step base
   where base = 0
         step x t = x + t
   -- foldr (\x t -> x + t) 0
 
 -- Exercise: write out allTrue and anyTrue and popCount using foldr.
+allTrue_v2 :: [Bool] -> Bool
+allTrue_v2 = foldr step base
+  where base = True 
+        step bool curr = bool && curr
+-- this is a good way to think about foldr, e.g. this could be written more
+-- concisely as allTrue_v2 = foldr (\bool curr -> bool && curr) True 
+-- see below in anyTrue_v2:
 
+anyTrue_v2 :: [Bool] -> Bool
+anyTrue_v2 = foldr (\bool curr -> bool || curr) False
+
+{- it also seems like an operator can be fed into this to connect each list 
+   element with e.g. instead of total_v3, this is shorthand for:
+
+  total_v3 :: [Int] -> Int
+  total_v3 [] = 0
+  total_v3 (x:xs) = x + total xs 
+ 
+  which unpacks into: 
+
+  total_v3 [3,4,5]
+  3 + total_v3 [4,5]
+  3 + 4 + total_v3 [5]
+  3 + 4 + 5 + total_v3 [] 
+  3 + 4 + 5 + 0 
+  12
+
+  From this it is clear to see what foldr (+) 0 is doing -}
+
+total_v3 :: [Int] -> Int
+total_v3 = foldr (+) 0
 
 
 {- fold for other datatypes -}
