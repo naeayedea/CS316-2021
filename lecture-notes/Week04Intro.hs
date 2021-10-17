@@ -107,8 +107,8 @@ total_v2 = foldr step base
 -- Exercise: write out allTrue and anyTrue and popCount using foldr.
 allTrue_v2 :: [Bool] -> Bool
 allTrue_v2 = foldr step base
-  where base = True 
-        step bool curr = bool && curr
+  where base = False
+        step bool curr = bool && bool
 -- this is a good way to think about foldr, e.g. this could be written more
 -- concisely as allTrue_v2 = foldr (\bool curr -> bool && curr) True 
 -- see below in anyTrue_v2:

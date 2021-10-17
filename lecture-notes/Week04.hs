@@ -121,6 +121,19 @@ product' xs = foldr (*) 1 xs
 append'' :: [a] -> [a] -> [a]
 append'' xs ys = foldr (:) ys xs
 
+{- foldr is funny, it doesn't like functions that take more than one input
+   so e.g. (\c string accum -> (c:string):accum) so you need to include it 
+   as a parameter as shown below with appendChar'' which appends the given
+   character to every string in the inputted list -}
+
+appendChar'' :: Char -> [String] -> [String]
+appendChar'' c = foldr (\string accum -> (c:string):accum) []
+
+{- here is a more generic version of appendChar'' -}
+
+appendSingleton :: a -> [[a]] -> [[a]]
+appendSingleton s = foldr (\list accum -> (s:list):accum) [] 
+
 {- 'foldr' is surprisingly powerful. In fact, it is possile to write all
    structurally recursive functions on lists (recursive functions that
    only make recursive calls on sublists of the input list) using
@@ -308,6 +321,9 @@ data Tree a
 foldTree :: b -> (b -> a -> b -> b) -> Tree a -> b
 foldTree l n Leaf                = l
 foldTree l n (Node left x right) = n (foldTree l n left) x (foldTree l n right)
+
+   --note that l is the accumulator, n is the function here which can be seen below
+   --where l is initially 0 and the function is (\l x r -> l + x + r)
 
 {- As an example, just as we used 'foldr' to write 'total' for lists, we
    can use 'foldTree' to sum up the values stored in a 'Tree Int', by
