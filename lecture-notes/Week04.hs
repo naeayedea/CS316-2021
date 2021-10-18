@@ -132,7 +132,7 @@ appendChar'' c = foldr (\string accum -> (c:string):accum) []
 {- here is a more generic version of appendChar'' -}
 
 appendSingleton :: a -> [[a]] -> [[a]]
-appendSingleton s = foldr (\list accum -> (s:list):accum) [] 
+appendSingleton s = foldr (\list accum -> (s:list):accum) []
 
 {- 'foldr' is surprisingly powerful. In fact, it is possile to write all
    structurally recursive functions on lists (recursive functions that
@@ -548,8 +548,8 @@ prime n = factors n == [1,n]
    infinite list containing exactly all the prime numbers
    (computed in a not very efficient way): -}
 
-primes :: [Int]
-primes = [ x | x <- [1..], prime x ]
+primes :: Int -> [Int]
+primes n = [ x | x <- 2:[3,5..n], prime x]
 
 {-    Part 4.5 : LIST COMPREHENSIONS FOR A SIMPLE DATABASE
 
