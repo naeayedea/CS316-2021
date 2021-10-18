@@ -105,6 +105,7 @@ total_v2 = foldr step base
   -- foldr (\x t -> x + t) 0
 
 -- Exercise: write out allTrue and anyTrue and popCount using foldr.
+
 allTrue_v2 :: [Bool] -> Bool
 allTrue_v2 = foldr step base
   where base = True
@@ -115,6 +116,10 @@ allTrue_v2 = foldr step base
 
 anyTrue_v2 :: [Bool] -> Bool
 anyTrue_v2 = foldr (\bool curr -> bool || curr) False
+
+popCount_v2 :: Eq a => a -> [a] -> Int
+popCount_v2 x = foldr (\item accum -> if item == x then accum + 1 else accum) 0
+
 
 {- it also seems like an operator can be fed into this to connect each list 
    element with e.g. instead of total_v3, this is shorthand for:
