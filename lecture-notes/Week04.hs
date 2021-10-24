@@ -121,7 +121,7 @@ product' xs = foldr (*) 1 xs
 append'' :: [a] -> [a] -> [a]
 append'' xs ys = foldr (:) ys xs
 
-{- foldr is funny, it doesn't like functions that take more than one input
+{- STUDY NOTE: foldr is funny, it doesn't like functions that take more than one input
    so e.g. (\c string accum -> (c:string):accum) so you need to include it 
    as a parameter as shown below with appendChar'' which appends the given
    character to every string in the inputted list -}

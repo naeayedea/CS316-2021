@@ -121,7 +121,7 @@ popCount_v2 :: Eq a => a -> [a] -> Int
 popCount_v2 x = foldr (\item accum -> if item == x then accum + 1 else accum) 0
 
 
-{- it also seems like an operator can be fed into this to connect each list 
+{- STUDY NOTE: it also seems like an operator can be fed into this to connect each list 
    element with e.g. instead of total_v3, this is shorthand for:
 
   total_v3 :: [Int] -> Int
@@ -199,6 +199,4 @@ eval_v1 = foldBoolExpr (\_ -> True) -- "A function '\' that takes an argument we
 -- Watch the videos to learn more about list comprehensions.
 --
 -- List comprehensions are also available in Python.
-
-- a change
 

@@ -5,6 +5,7 @@ import Prelude hiding (foldr, foldl, Maybe (..), Left, Right, filter, zip, map, 
 import Data.List.Split (splitOn)
 import Data.List hiding (foldr, foldl, filter, map, concat)
 import Week04
+import GHC.Arr (badSafeIndex)
 
 {------------------------------------------------------------------------------}
 {- TUTORIAL QUESTIONS                                                         -}
@@ -20,7 +21,8 @@ listIdentity (x:xs) = x : listIdentity xs
 {- Write this function as a 'foldr' (fill in the 'undefined's): -}
 
 listIdentity' :: [a] -> [a]
-listIdentity' = foldr undefined undefined
+listIdentity' = foldr (:) []
+
 
 {- 2. The following recursive function does a map and a filter at the
       same time. If the function argument sends an element to
@@ -36,7 +38,10 @@ mapFilter f (x:xs) = case f x of
 {- Write this function as a 'foldr': -}
 
 mapFilter' :: (a -> Maybe b) -> [a] -> [b]
-mapFilter' f xs = foldr undefined undefined xs
+mapFilter' f = foldr step []
+   where step = \element list -> case f element of
+                                    Nothing -> list
+                                    Just b -> b : list
 
 
 {- 3. Above we saw that 'foldl' and 'foldr' in general give different
@@ -44,10 +49,29 @@ mapFilter' f xs = foldr undefined undefined xs
       'foldr'.
 
       First try to define a function that is the same as 'foldl',
-      using 'foldr', 'reverse' and a '\' function: -}
+      using 'foldr', 'reverse' and a '\' (STUDY NOTE: '\' = lambda) function: -}
+
+{- foldr type signature and code: 
+   foldr :: (a -> b -> b) -> b -> [a] -> b
+   foldr f a []     = a
+   foldr f a (x:xs) = f x (foldr f a xs)
+
+   foldl type signature and code: 
+
+   foldl :: (b -> a -> b) -> b -> [a] -> b
+   foldl f a []     = a
+   foldl f a (x:xs) = foldl f (f a x) xs
+-}
 
 foldlFromFoldrAndReverse :: (b -> a -> b) -> b -> [a] -> b
-foldlFromFoldrAndReverse f x xs = undefined
+foldlFromFoldrAndReverse f x xs = foldr (\a b -> f b a) x (reverse xs)
+
+{-  We could have also used the 'flip' function from last week's
+    questions, which is provided by the standard library: -}
+
+foldlFromFoldrAndReverse_v2 :: (b -> a -> b) -> b -> [a] -> b
+foldlFromFoldrAndReverse_v2 f x xs = foldr (flip f) x (reverse xs)
+
 
 {-   Much harder: define 'foldl' just using 'foldr' and a '\' function: -}
 
@@ -67,15 +91,28 @@ data Nat
   | Succ Nat
   deriving Show
 
+{-STUDY NOTE: Succ is of type (Nat -> Nat) -}
+
 {- HINT: think about proofs by induction. A proof by induction has a
    base case and a step case. -}
 
+foldNat :: (b -> b) -> b -> Nat -> b
+foldNat succ zero Zero     = zero
+foldNat succ zero (Succ n) = succ (foldNat succ zero n)
+
+{- Here we have 'zero' for the base case, 'succ' for the step case.
+
+   As an example, we can define 'add' for 'Nat' in terms of 'foldNat',
+   which has a similar structure to 'append' for lists: -}
+
+add :: Nat -> Nat -> Nat
+add x y  = foldNat Succ y x
 
 {- 5. Write a list comprehension to generate all the cubes (x*x*x) of
       the numbers 1 to 10: -}
 
 cubes :: [Int]
-cubes = undefined
+cubes = [x^3 | x <- [1..10]]
 
 
 {- 6. The replicate function copies a single value a fixed number of
@@ -87,7 +124,7 @@ cubes = undefined
       Write a version of replicate using a list comprehension: -}
 
 replicate' :: Int -> a -> [a]
-replicate' = undefined
+replicate' n s = [s | y <- [1..n]]
 
 {- 7. One-pass Average.
 
@@ -116,7 +153,7 @@ avg xs = sumDoubles xs / fromInteger (lenList xs)
    Implement such a function, using foldr: -}
 
 sumAndLen :: [Double] -> (Double, Integer)
-sumAndLen = undefined
+sumAndLen = foldr (\x (sum, len) -> (sum + x, len + 1)) (0,0)
 
 {- Once you have implemented your 'sumAndLen' function, this alternative
    average function will work: -}
@@ -145,7 +182,7 @@ foldTree l n (Node lt x rt) = n (foldTree l n lt) x (foldTree l n rt)
    'foldTree': -}
 
 mapTree :: (a -> b) -> Tree a -> Tree b
-mapTree = undefined
+mapTree f = foldTree Leaf (\l x r -> Node l (f x) r )
 
 {- Here is the explicitly recursive version of 'mapTree', for
    reference: -}
@@ -158,4 +195,4 @@ mapTree0 f (Node lt x rt) = Node (mapTree0 f lt) (f x) (mapTree0 f rt)
    order: -}
 
 flatten :: Tree a -> [a]
-flatten = undefined
+flatten = foldTree [] (\l x r -> l ++ [x] ++ r)
