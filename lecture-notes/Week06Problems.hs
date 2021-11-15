@@ -26,16 +26,21 @@ data Result a
    error message. -}
 
 returnOk :: a -> Result a
-returnOk = undefined
+returnOk = Ok
 
 failure :: String -> Result a
-failure = undefined
+failure = Error 
 
+--op is an operation that can be applied to the continuation, k, if a is
+--exists. This is kind of like try {k r} catch (Error e)
 ifOK :: Result a -> (a -> Result b) -> Result b
-ifOK = undefined
+ifOK op k = case op of
+         Error e -> Error e
+         Ok    r -> k r 
 
 catch :: Result a -> (String -> Result a) -> Result a
-catch = undefined
+catch (Ok a)      handler = Ok a
+catch (Error msg) handler = handler msg
 
 {- Reimplement 'search' to use 'Result' instead of 'Maybe'. We add 'Show
    k' to the requirements, so that we can put the key that wasn't

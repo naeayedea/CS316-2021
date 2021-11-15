@@ -519,7 +519,7 @@ numberTree Leaf counter =
    unmodified, along with the Tree. -}
 
 numberTree (Node l x r) counter =
-  let (counter0, l') = numberTree l counter
+  let (counter0, l') = numberTree l counter -- this line returns a tuple which maps to (counter0, l')
       number         = counter0
       counter1       = counter0+1
       (counter2, r') = numberTree r counter1
@@ -566,6 +566,9 @@ type State a = Int -> (Int, a)
    this returns 'Leaf', while simulating *not* mutating the
    counter. Let's capture this pattern as a function: -}
 
+-- STUDY NOTE: remember that this State a returns a function that takes an int 
+-- and returns (Int, a) e.g. a -> State a is short for a -> Int -> (Int, a) i.e.
+-- returnState :: a -> Int -> (Int, a) same as: 
 returnState :: a -> State a
 returnState x s = (s, x)
 
