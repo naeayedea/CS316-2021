@@ -29,14 +29,14 @@ returnOk :: a -> Result a
 returnOk = Ok
 
 failure :: String -> Result a
-failure = Error 
+failure = Error
 
 --op is an operation that can be applied to the continuation, k, if a is
 --exists. This is kind of like try {k r} catch (Error e)
 ifOK :: Result a -> (a -> Result b) -> Result b
 ifOK op k = case op of
          Error e -> Error e
-         Ok    r -> k r 
+         Ok    r -> k r
 
 catch :: Result a -> (String -> Result a) -> Result a
 catch (Ok a)      handler = Ok a
@@ -47,14 +47,21 @@ catch (Error msg) handler = handler msg
    found in the error message. -}
 
 search :: (Show k, Eq k) => k -> [(k,v)] -> Result v
-search = undefined
+search k [] = Error ("key '"++show k++"' not present in list")
+search k ((k', v'):kvs) =
+   if k == k' then returnOk v'
+   else search k kvs
 
 {- Finally, reimplement 'lookupAll v4' to return 'Result (Tree v)'
    instead of 'Maybe (Tree v)'. (The code will be identical!) -}
 
 lookupAll_v4 :: (Show k, Eq k) => [(k,v)] -> Tree k -> Result (Tree v)
-lookupAll_v4 = undefined
-
+lookupAll_v4 kvs Leaf = returnOk Leaf
+lookupAll_v4 kvs (Node l v r) = 
+   lookupAll_v4 kvs l `ifOK` \l' -> 
+   search v kvs `ifOK` \v'       ->
+   lookupAll_v4 kvs r `ifOK` \r' ->
+      returnOk (Node l' v' r')
 
 
 {- 2. Processes
@@ -75,7 +82,10 @@ interaction :: Process ()
 interaction =
     Output "What is your name?"
     (Input (\name ->
-              Output ("Hello " ++ name ++ "!") (End ())))
+      Output ("Hello " ++ name ++ "!")
+     (Output "What is your name really?"
+     (Input (\realName ->
+      Output ("Okay, now I believe you "++realName) (End ()))))))
 
 {- Processes by themselves do not do anything. They are only
    descriptions of what to do. To have an effect on the world, we to
@@ -114,9 +124,9 @@ output s = Output s (End ())
    functions from the notes. -}
 
 sequ :: Process a -> (a -> Process b) -> Process b
-sequ (End a)      f = undefined
-sequ (Input k)    f = undefined
-sequ (Output s p) f = undefined
+sequ (End a)      f = f a 
+sequ (Input k)    f = Input (\x -> sequ (k x) f)
+sequ (Output s p) f = Output s (sequ p f)
 
 {- HINT: this is very very similar to the 'subst' function from Week 03.
 
@@ -129,6 +139,17 @@ interaction_v2 =
   input                            `sequ` \name ->
   output ("Hello " ++ name ++ "!") `sequ` \() ->
   End ()
+
+interaction_v3 :: Process ()
+interaction_v3 = 
+   output "How are you (say good)" `sequ` \()   ->
+   input                          `sequ` \name ->
+   if name == "good" then
+      output "I am glad that you are good :)"
+   else
+      output "You are not good :("
+   `sequ` \() -> 
+   End ()
 
 {- Running 'runProcess interaction_v2' should have the same effect as
    running 'runProcess interaction' did.
@@ -154,7 +175,12 @@ interaction_v2 =
    where the lower case lines are entered by the user. -}
 
 interactiveMap :: [String] -> Process [String]
-interactiveMap = undefined
+interactiveMap [] = End []
+interactiveMap (s:ss) = 
+   output ("replace "++s++" with:") `sequ` \() -> 
+   input    `sequ` \y ->
+   interactiveMap ss `sequ` \ys -> 
+   End (y:ys)
 
 {- Finally, implement a function that does an 'interactive filter',
    similar to the interactive map. For every element in the input
@@ -163,8 +189,16 @@ interactiveMap = undefined
    output list. -}
 
 interactiveFilter :: Show a => [a] -> Process [a]
-interactiveFilter = undefined
-
+interactiveFilter [] = End []
+interactiveFilter (x:xs) = 
+   output ("keep "++ show x++"?") `sequ` \() ->
+   input                        `sequ` \char -> 
+   if char == "Y" || char == "y" then
+      interactiveFilter xs `sequ` \ys -> 
+      End (x:ys)
+   else
+      interactiveFilter xs `sequ` \ys ->
+      End ys
 {- For example,
 
        > runProcess (interactiveFilter ["A","B","C"])

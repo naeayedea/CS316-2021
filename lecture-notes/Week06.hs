@@ -684,6 +684,9 @@ getAndIncrement_v2 =
 runState :: State a -> Int -> (Int,a)
 runState t i = t i
 
+--lets you run a state mutating operation while not needing to see state after
+runStateResult :: State a -> Int -> a
+runStateResult t i = snd (t i)
 
 {-    Part 6.4 : SIMULATING OUTPUT
 
