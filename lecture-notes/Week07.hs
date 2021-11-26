@@ -456,8 +456,8 @@ lengthImp xs =
      for_ xs (\_ -> do
        len <- get
        put (len+1))
-     result <- get
-     return result
+     get
+
 
 {- Or summing up a list by using the mutable state as the running total: -}
 
@@ -467,5 +467,4 @@ sumImp xs =
      for_ xs (\x -> do
        total <- get
        put (total + x))
-     result <- get
-     return result
+     get

@@ -37,13 +37,32 @@ data Result a
       'returnOk' and 'ifOK' functions from last week, and then use it
       to rewrite the 'search' and 'lookupAll' functions. -}
 
+instance Monad Result where
+  return :: a -> Result a 
+  return a = Ok a 
+
+  (>>=) :: Result a -> (a -> Result b) -> Result b
+  op >>= f = case op of 
+            Error e -> Error e 
+            Ok a    -> f a
+
+search:: (Eq k, Show k) => k -> [(k, v)] -> Result v
+search k [] =  Error ("Key "++ show k ++" not present")
+search k ((k',v'):kvs) =
+   if k == k' then
+     return v'
+    else
+      search k kvs 
 
 {- 2. Write a function using the Printing monad and 'do' notation that
       "prints out" all the strings in a tree of 'String's: -}
 
 printTree :: Tree String -> Printing ()
-printTree = undefined
-
+printTree Leaf = return () 
+printTree (Node l v r) =
+      do    printTree l
+            printLine v 
+            printTree r 
 
 {- 3. The implementation of 'sumImp' in the notes can only sum up lists
       of 'Int's.
@@ -55,8 +74,10 @@ printTree = undefined
           the 'sumpImp' function. The changes to the actual code will
           be minimal, if anything. All the changes are in the types. -}
 
+newtype StateDouble a = MkStateDouble (Double -> (Double, a))
 
-
+runStateDouble :: StateDouble a -> Double -> (Double, a)
+runStateDouble (MkStateDouble t) = t
 
 {-    (b) Make an alternative version of 'State' that is parameterised
           by the type of the state (so that someone using it can
