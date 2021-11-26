@@ -199,6 +199,8 @@ interactiveFilter (x:xs) =
    else
       interactiveFilter xs `sequ` \ys ->
       End ys
+
+      
 {- For example,
 
        > runProcess (interactiveFilter ["A","B","C"])
