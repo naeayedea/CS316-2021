@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fwarn-incomplete-patterns #-}
 module Week02Solutions where
 
-import Week02
+import Week02 hiding (removeAll)
 
 {------------------------------------------------------------------------------}
 {- TUTORIAL QUESTIONS                                                         -}
