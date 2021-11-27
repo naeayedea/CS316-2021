@@ -16,13 +16,18 @@ import Data.Char (isAlphaNum)
           (section 8.3) does but for output. -}
 
 withOutputFile :: FilePath -> (Handle -> IO a) -> IO a
-withOutputFile = undefined
+withOutputFile path body =
+  do
+    handle <- openFile path WriteMode
+    result <- body handle `finally` hClose handle
+    return result
 
 {-    (b) Use your 'withOutputFile' to write an exception safe version
           of 'writeToFile'. -}
 
 writeFile :: FilePath -> String -> IO ()
-writeFile = undefined
+writeFile path content =
+  withOutputFile path (for_ content . hPutChar)
 
 
 {- 2. Write a parser for primary colours, similar to the 'parseBool'
@@ -35,7 +40,15 @@ data PrimaryColour
   deriving (Show, Eq)
 
 parsePrimaryColour :: Parser PrimaryColour
-parsePrimaryColour = undefined
+parsePrimaryColour = 
+  do isString "Red"
+     return Red
+  `orElse`
+  do isString "Green"
+     return Green
+  `orElse`
+  do isString "Blue"
+     return Blue 
 
 {- For example,
 
@@ -53,7 +66,7 @@ parsePrimaryColour = undefined
       for comma separated lists of primary colours. -}
 
 parseListOfPrimaryColours :: Parser [PrimaryColour]
-parseListOfPrimaryColours = undefined
+parseListOfPrimaryColours = sepBy (isString ",") parsePrimaryColour
 
 {- 4. Let us now make a little programming language. Expressions in this
       language follow Java-/C-style function use syntax. For example:
@@ -99,7 +112,19 @@ printExpr (AppExp funNm args) =
       the function names. -}
 
 parseExpr :: Parser Expr
-parseExpr = undefined
+parseExpr = 
+  do 
+    parseWhitespace
+    n <- number
+    return (IntExp n)
+  `orElse`
+  do 
+    parseWhitespace 
+    function <- parseIdentifier
+    isChar '('
+    args <- sepBy (isChar ',') parseExpr
+    isChar ')'
+    return (AppExp function args)
 
 
 parseIdentifier :: Parser String
